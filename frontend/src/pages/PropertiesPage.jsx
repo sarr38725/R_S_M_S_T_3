@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useProperties } from '../context/PropertyContext';
 import PropertyCard from '../components/property/PropertyCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { FiFilter, FiX } from 'react-icons/fi';
 
 function parsePriceRange(range) {
   if (!range) return { minPrice: null, maxPrice: null };
@@ -48,6 +49,8 @@ const PropertiesPage = () => {
     location: ''
   });
 
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
   // derive query-friendly filters
   const parsed = useMemo(() => {
     const { minPrice, maxPrice } = parsePriceRange(filters.priceRange);
@@ -86,61 +89,113 @@ const PropertiesPage = () => {
   return (
     <div className="min-h-screen pt-16 bg-gray-50">
       <div className="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <h1 className="mb-4 text-4xl font-bold text-gray-900">Browse Properties</h1>
-          <p className="text-xl text-gray-600">Discover your perfect home from our extensive collection</p>
-        </motion.div>
-
-        {/* Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="p-6 mb-8 bg-white rounded-lg shadow-sm"
-        >
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <select
-              id="filter-type"
-              name="filter-type"
-              value={filters.type}
-              onChange={(e) => setFilters({ ...filters, type: e.target.value })}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {TYPES.map(opt => (
-                <option key={opt.value || 'all'} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-
-            <select
-              id="filter-price-range"
-              name="filter-price-range"
-              value={filters.priceRange}
-              onChange={(e) => setFilters({ ...filters, priceRange: e.target.value })}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {PRICE_RANGES.map(opt => (
-                <option key={opt.value || 'all'} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-
-            <input
-              id="filter-location"
-              name="filter-location"
-              type="text"
-              placeholder="Location"
-              value={filters.location}
-              onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="mb-4 text-4xl font-bold text-gray-900">Browse Properties</h1>
+            <p className="text-xl text-gray-600">Discover your perfect home from our extensive collection</p>
           </div>
 
-          <div className="flex justify-end mt-4">
-            <button
-              onClick={resetFilters}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200"
-            >
-              Reset filters
-            </button>
-          </div>
+          {/* Filter Toggle Button - Mobile */}
+          <button
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+            className="flex items-center gap-2 px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 lg:hidden"
+          >
+            <FiFilter className="w-5 h-5" />
+            Filters
+          </button>
         </motion.div>
+
+        {/* Sliding Filter Panel */}
+        <AnimatePresence>
+          {(isFilterOpen || window.innerWidth >= 1024) && (
+            <motion.div
+              initial={{ x: -300, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -300, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 left-0 z-50 w-80 bg-white shadow-2xl lg:relative lg:w-full lg:shadow-sm lg:rounded-lg lg:mb-8"
+            >
+              {/* Mobile Close Button */}
+              <div className="flex items-center justify-between p-4 border-b lg:hidden">
+                <h2 className="text-xl font-semibold text-gray-900">Filters</h2>
+                <button
+                  onClick={() => setIsFilterOpen(false)}
+                  className="p-2 text-gray-500 transition-colors hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                >
+                  <FiX className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="p-6 overflow-y-auto max-h-screen lg:max-h-none">
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="filter-type" className="block mb-2 text-sm font-medium text-gray-700">
+                      Property Type
+                    </label>
+                    <select
+                      id="filter-type"
+                      name="filter-type"
+                      value={filters.type}
+                      onChange={(e) => setFilters({ ...filters, type: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      {TYPES.map(opt => (
+                        <option key={opt.value || 'all'} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="filter-price-range" className="block mb-2 text-sm font-medium text-gray-700">
+                      Price Range
+                    </label>
+                    <select
+                      id="filter-price-range"
+                      name="filter-price-range"
+                      value={filters.priceRange}
+                      onChange={(e) => setFilters({ ...filters, priceRange: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      {PRICE_RANGES.map(opt => (
+                        <option key={opt.value || 'all'} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="filter-location" className="block mb-2 text-sm font-medium text-gray-700">
+                      Location
+                    </label>
+                    <input
+                      id="filter-location"
+                      name="filter-location"
+                      type="text"
+                      placeholder="Enter location"
+                      value={filters.location}
+                      onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <button
+                    onClick={resetFilters}
+                    className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200"
+                  >
+                    Reset filters
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Overlay for mobile */}
+        {isFilterOpen && (
+          <div
+            onClick={() => setIsFilterOpen(false)}
+            className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
+          />
+        )}
 
         {/* Properties Grid */}
         {properties.length === 0 ? (
