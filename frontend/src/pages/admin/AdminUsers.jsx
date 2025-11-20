@@ -19,6 +19,15 @@ const AdminUsers = () => {
   const [filterRole, setFilterRole] = useState('all');
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [editForm, setEditForm] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    role: 'user'
+  });
 
   useEffect(() => {
     fetchUsers();
@@ -47,6 +56,46 @@ const AdminUsers = () => {
 
   const getStatusBadgeVariant = (status) => {
     return status === 'active' ? 'success' : 'default';
+  };
+
+  const handleView = (user) => {
+    setSelectedUser(user);
+    setViewModalOpen(true);
+  };
+
+  const handleEdit = (user) => {
+    setSelectedUser(user);
+    setEditForm({
+      full_name: user.name,
+      email: user.email,
+      phone: user.phone || '',
+      role: user.role
+    });
+    setEditModalOpen(true);
+  };
+
+  const handleDelete = async (userId) => {
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      try {
+        await api.delete(`/auth/${userId}`);
+        fetchUsers();
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        alert('Failed to delete user');
+      }
+    }
+  };
+
+  const handleUpdateUser = async (e) => {
+    e.preventDefault();
+    try {
+      await api.put(`/auth/${selectedUser.id}`, editForm);
+      setEditModalOpen(false);
+      fetchUsers();
+    } catch (error) {
+      console.error('Error updating user:', error);
+      alert('Failed to update user');
+    }
   };
 
   const filteredUsers = users.filter(u => {
@@ -192,13 +241,25 @@ const AdminUsers = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
-                      <button key={`view-${user.id}`} className="text-blue-600 hover:text-blue-900">
+                      <button
+                        onClick={() => handleView(user)}
+                        className="text-blue-600 hover:text-blue-900"
+                        title="View Details"
+                      >
                         <EyeIcon className="h-4 w-4" />
                       </button>
-                      <button key={`edit-${user.id}`} className="text-gray-600 hover:text-gray-900">
+                      <button
+                        onClick={() => handleEdit(user)}
+                        className="text-gray-600 hover:text-gray-900"
+                        title="Edit User"
+                      >
                         <PencilIcon className="h-4 w-4" />
                       </button>
-                      <button key={`delete-${user.id}`} className="text-red-600 hover:text-red-900">
+                      <button
+                        onClick={() => handleDelete(user.id)}
+                        className="text-red-600 hover:text-red-900"
+                        title="Delete User"
+                      >
                         <TrashIcon className="h-4 w-4" />
                       </button>
                     </div>
@@ -209,6 +270,148 @@ const AdminUsers = () => {
           </table>
         </div>
       </motion.div>
+
+      {/* View Modal */}
+      {viewModalOpen && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-gray-900">User Details</h2>
+              <button
+                onClick={() => setViewModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <span className="text-2xl">&times;</span>
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-2xl font-medium">
+                    {selectedUser.avatar}
+                  </span>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-xl font-semibold text-gray-900">{selectedUser.name}</h3>
+                  <p className="text-gray-600">{selectedUser.email}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                <div>
+                  <p className="text-sm text-gray-500">Phone</p>
+                  <p className="text-gray-900">{selectedUser.phone || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Role</p>
+                  <Badge variant={getRoleBadgeVariant(selectedUser.role)}>
+                    {selectedUser.role}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Status</p>
+                  <Badge variant={getStatusBadgeVariant(selectedUser.status)}>
+                    {selectedUser.status}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Properties</p>
+                  <p className="text-gray-900">{selectedUser.properties}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-sm text-gray-500">Join Date</p>
+                  <p className="text-gray-900">{new Date(selectedUser.joinDate).toLocaleDateString()}</p>
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <Button onClick={() => setViewModalOpen(false)}>Close</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editModalOpen && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-gray-900">Edit User</h2>
+              <button
+                onClick={() => setEditModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <span className="text-2xl">&times;</span>
+              </button>
+            </div>
+            <form onSubmit={handleUpdateUser} className="space-y-4">
+              <div>
+                <label htmlFor="full_name" className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name
+                </label>
+                <input
+                  id="full_name"
+                  type="text"
+                  value={editForm.full_name}
+                  onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone
+                </label>
+                <input
+                  id="phone"
+                  type="tel"
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+                  Role
+                </label>
+                <select
+                  id="role"
+                  value={editForm.role}
+                  onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="user">User</option>
+                  <option value="agent">Agent</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div className="flex justify-end space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setEditModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <Button type="submit">Update User</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

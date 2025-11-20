@@ -37,4 +37,40 @@ const getUsers = async (req, res) => {
   }
 };
 
-module.exports = { getUsers };
+const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { full_name, email, phone, role } = req.body;
+
+    const [result] = await db.query(
+      'UPDATE users SET full_name = ?, email = ?, phone = ?, role = ? WHERE id = ?',
+      [full_name, email, phone, role, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'User updated successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [result] = await db.query('DELETE FROM users WHERE id = ?', [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+module.exports = { getUsers, updateUser, deleteUser };
