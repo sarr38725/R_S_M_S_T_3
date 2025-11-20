@@ -1,41 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
-import { 
-  MagnifyingGlassIcon, 
-  UserPlusIcon, 
-  PencilIcon, 
+import {
+  MagnifyingGlassIcon,
+  UserPlusIcon,
+  PencilIcon,
   TrashIcon,
   EyeIcon
 } from '@heroicons/react/24/outline';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import Badge from '../../components/common/Badge';
+import api from '../../services/api';
 
 const AdminUsers = () => {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Show current logged in user as example
-  const users = user ? [
-    {
-      id: user.uid,
-      name: user.displayName || 'Current User',
-      email: user.email,
-      role: 'admin',
-      status: 'active',
-      joinDate: new Date().toISOString().split('T')[0],
-      properties: 0,
-      avatar: (user.displayName || user.email)?.[0]?.toUpperCase() || 'U'
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/auth');
+      setUsers(response.data.users || []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setLoading(false);
     }
-  ] : [];
+  };
 
   const getRoleBadgeVariant = (role) => {
     switch (role) {
       case 'admin': return 'danger';
-      case 'seller': return 'warning';
-      case 'buyer': return 'info';
+      case 'agent': return 'warning';
+      case 'user': return 'info';
       default: return 'default';
     }
   };
@@ -44,12 +49,20 @@ const AdminUsers = () => {
     return status === 'active' ? 'success' : 'default';
   };
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = filterRole === 'all' || user.role === filterRole;
+  const filteredUsers = users.filter(u => {
+    const matchesSearch = u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         u.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRole = filterRole === 'all' || u.role === filterRole;
     return matchesSearch && matchesRole;
   });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-600">Loading users...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -100,8 +113,8 @@ const AdminUsers = () => {
           >
             <option key="all" value="all">All Roles</option>
             <option key="admin" value="admin">Admin</option>
-            <option key="seller" value="seller">Seller</option>
-            <option key="buyer" value="buyer">Buyer</option>
+            <option key="agent" value="agent">Agent</option>
+            <option key="user" value="user">User</option>
           </select>
 
           <div className="flex items-center text-sm text-gray-600">
