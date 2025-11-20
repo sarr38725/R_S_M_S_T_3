@@ -38,15 +38,22 @@ const LoginPage = () => {
     setLoading(true);
     setErrors({});
 
+    console.log('Attempting login for:', formData.email);
+
     const result = await login(formData.email, formData.password);
 
+    console.log('Login result:', result);
+
     if (!result.success) {
-      showToast('Login failed. Please check your credentials.', 'error');
+      console.error('Login failed:', result.error);
+      showToast(result.error || 'Login failed. Please check your credentials.', 'error');
       setLoading(false);
       return;
     }
 
     // Success
+    console.log('Login successful, user role:', result.user?.role);
+
     if (result.user?.role === 'admin') {
       showToast('Welcome Admin!', 'success');
       setTimeout(() => navigate('/admin', { replace: true }), 100);
