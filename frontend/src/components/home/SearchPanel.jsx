@@ -67,10 +67,10 @@ const SearchPanel = () => {
           className="w-full px-4 py-3 rounded-lg border border-white/30 bg-white/20 backdrop-blur-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
         >
           <option key="" value="">Price Range</option>
-          <option key="0-500000" value="0-500000">Under $500K</option>
-          <option key="500000-1000000" value="500000-1000000">$500K - $1M</option>
-          <option key="1000000-2000000" value="1000000-2000000">$1M - $2M</option>
-          <option key="2000000+" value="2000000+">$2M+</option>
+          <option key="0-500000" value="0-500000">Under ৳500K</option>
+          <option key="500000-1000000" value="500000-1000000">৳500K - ৳1M</option>
+          <option key="1000000-2000000" value="1000000-2000000">৳1M - ৳2M</option>
+          <option key="2000000+" value="2000000+">৳2M+</option>
         </select>
         
         <Button 

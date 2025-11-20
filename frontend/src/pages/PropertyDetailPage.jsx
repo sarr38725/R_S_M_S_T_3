@@ -24,9 +24,7 @@ function asImageArray(images) {
 
 function formatPrice(n) {
   if (typeof n !== 'number') return '—';
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  return '৳' + new Intl.NumberFormat('en-US', {
     maximumFractionDigits: 0
   }).format(n);
 }

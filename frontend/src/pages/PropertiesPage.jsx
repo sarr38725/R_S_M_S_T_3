@@ -34,10 +34,10 @@ const TYPES = [
 
 const PRICE_RANGES = [
   { value: '', label: 'All Prices' },
-  { value: '0-500000', label: 'Up to $500K' },
-  { value: '500000-1000000', label: '$500K – $1M' },
-  { value: '1000000-2000000', label: '$1M – $2M' },
-  { value: '2000000+', label: '$2M+' },
+  { value: '0-500000', label: 'Up to ৳500K' },
+  { value: '500000-1000000', label: '৳500K – ৳1M' },
+  { value: '1000000-2000000', label: '৳1M – ৳2M' },
+  { value: '2000000+', label: '৳2M+' },
 ];
 
 const BEDROOMS = [
@@ -110,9 +110,7 @@ const PropertiesPage = () => {
   };
 
   const formatPrice = (value) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return '৳' + new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);
