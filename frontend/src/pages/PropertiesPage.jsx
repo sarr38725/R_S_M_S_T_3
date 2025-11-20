@@ -167,117 +167,112 @@ const PropertiesPage = () => {
               </div>
 
               <div className="p-6 overflow-y-auto max-h-screen lg:max-h-none">
-                <div className="space-y-6">
-                  <div>
-                    <label htmlFor="filter-type" className="block mb-2 text-sm font-medium text-gray-700">
-                      Property Type
-                    </label>
-                    <select
-                      id="filter-type"
-                      name="filter-type"
-                      value={filters.type}
-                      onChange={(e) => setFilters({ ...filters, type: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      {TYPES.map(opt => (
-                        <option key={opt.value || 'all'} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
-                  </div>
+                <div className="space-y-5">
+                  <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
+                    <div>
+                      <label htmlFor="filter-type" className="block mb-1.5 text-xs font-medium text-gray-700">
+                        Property Type
+                      </label>
+                      <select
+                        id="filter-type"
+                        name="filter-type"
+                        value={filters.type}
+                        onChange={(e) => setFilters({ ...filters, type: e.target.value })}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        {TYPES.map(opt => (
+                          <option key={opt.value || 'all'} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    </div>
 
-                  <div>
-                    <label htmlFor="filter-price-range" className="block mb-2 text-sm font-medium text-gray-700">
-                      Quick Price Range
-                    </label>
-                    <select
-                      id="filter-price-range"
-                      name="filter-price-range"
-                      value={filters.priceRange}
-                      onChange={(e) => setFilters({ ...filters, priceRange: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      {PRICE_RANGES.map(opt => (
-                        <option key={opt.value || 'all'} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
+                    <div>
+                      <label htmlFor="filter-price-range" className="block mb-1.5 text-xs font-medium text-gray-700">
+                        Price Range
+                      </label>
+                      <select
+                        id="filter-price-range"
+                        name="filter-price-range"
+                        value={filters.priceRange}
+                        onChange={(e) => setFilters({ ...filters, priceRange: e.target.value })}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        {PRICE_RANGES.map(opt => (
+                          <option key={opt.value || 'all'} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
 
                   {!filters.priceRange && (
-                    <div>
-                      <label className="block mb-3 text-sm font-medium text-gray-700">
-                        Custom Price Range
-                      </label>
-                      <div className="space-y-4">
-                        <div>
-                          <label htmlFor="min-price" className="block mb-2 text-xs text-gray-600">
-                            Minimum: {formatPrice(filters.minPrice)}
-                          </label>
-                          <input
-                            id="min-price"
-                            type="range"
-                            min="0"
-                            max="10000000"
-                            step="100000"
-                            value={filters.minPrice}
-                            onChange={(e) => setFilters({ ...filters, minPrice: Number(e.target.value) })}
-                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="max-price" className="block mb-2 text-xs text-gray-600">
-                            Maximum: {formatPrice(filters.maxPrice)}
-                          </label>
-                          <input
-                            id="max-price"
-                            type="range"
-                            min="0"
-                            max="10000000"
-                            step="100000"
-                            value={filters.maxPrice}
-                            onChange={(e) => setFilters({ ...filters, maxPrice: Number(e.target.value) })}
-                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                          />
-                        </div>
+                    <div className="pt-2 pb-1">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-medium text-gray-700">Custom Price</span>
+                        <span className="text-xs text-gray-600">{formatPrice(filters.minPrice)} - {formatPrice(filters.maxPrice)}</span>
+                      </div>
+                      <div className="space-y-3">
+                        <input
+                          id="min-price"
+                          type="range"
+                          min="0"
+                          max="10000000"
+                          step="100000"
+                          value={filters.minPrice}
+                          onChange={(e) => setFilters({ ...filters, minPrice: Number(e.target.value) })}
+                          className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                        />
+                        <input
+                          id="max-price"
+                          type="range"
+                          min="0"
+                          max="10000000"
+                          step="100000"
+                          value={filters.maxPrice}
+                          onChange={(e) => setFilters({ ...filters, maxPrice: Number(e.target.value) })}
+                          className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                        />
                       </div>
                     </div>
                   )}
 
-                  <div>
-                    <label htmlFor="filter-bedrooms" className="block mb-2 text-sm font-medium text-gray-700">
-                      Bedrooms
-                    </label>
-                    <select
-                      id="filter-bedrooms"
-                      name="filter-bedrooms"
-                      value={filters.bedrooms}
-                      onChange={(e) => setFilters({ ...filters, bedrooms: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      {BEDROOMS.map(opt => (
-                        <option key={opt.value || 'any'} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
+                  <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
+                    <div>
+                      <label htmlFor="filter-bedrooms" className="block mb-1.5 text-xs font-medium text-gray-700">
+                        Bedrooms
+                      </label>
+                      <select
+                        id="filter-bedrooms"
+                        name="filter-bedrooms"
+                        value={filters.bedrooms}
+                        onChange={(e) => setFilters({ ...filters, bedrooms: e.target.value })}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        {BEDROOMS.map(opt => (
+                          <option key={opt.value || 'any'} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label htmlFor="filter-bathrooms" className="block mb-1.5 text-xs font-medium text-gray-700">
+                        Bathrooms
+                      </label>
+                      <select
+                        id="filter-bathrooms"
+                        name="filter-bathrooms"
+                        value={filters.bathrooms}
+                        onChange={(e) => setFilters({ ...filters, bathrooms: e.target.value })}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        {BATHROOMS.map(opt => (
+                          <option key={opt.value || 'any'} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
 
                   <div>
-                    <label htmlFor="filter-bathrooms" className="block mb-2 text-sm font-medium text-gray-700">
-                      Bathrooms
-                    </label>
-                    <select
-                      id="filter-bathrooms"
-                      name="filter-bathrooms"
-                      value={filters.bathrooms}
-                      onChange={(e) => setFilters({ ...filters, bathrooms: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      {BATHROOMS.map(opt => (
-                        <option key={opt.value || 'any'} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="filter-location" className="block mb-2 text-sm font-medium text-gray-700">
+                    <label htmlFor="filter-location" className="block mb-1.5 text-xs font-medium text-gray-700">
                       Location
                     </label>
                     <input
@@ -287,13 +282,13 @@ const PropertiesPage = () => {
                       placeholder="Enter location"
                       value={filters.location}
                       onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
                   <button
                     onClick={resetFilters}
-                    className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
+                    className="w-full px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
                   >
                     Reset filters
                   </button>
