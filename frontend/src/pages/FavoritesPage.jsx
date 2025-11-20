@@ -2,44 +2,91 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HeartIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
-import { useProperties } from '../context/PropertyContext';
+import { useFavorites } from '../context/FavoriteContext';
+import { useUI } from '../context/UIContext';
+import { propertyService } from '../services/propertyService';
 import PropertyCard from '../components/property/PropertyCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const FavoritesPage = () => {
   const { user } = useAuth();
-  const { properties } = useProperties();
-  const [favorites, setFavorites] = useState([]);
+  const { favorites, loading: favLoading, toggleFavorite, isFavorited } = useFavorites();
+  const { showToast } = useUI();
+  const [favoriteProperties, setFavoriteProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadFavorites = async () => {
-      try {
-        // In a real app, you would fetch favorites from a separate collection
-        // For now, we'll show featured properties as demo favorites
-        const featuredProperties = properties.filter(p => p.featured && p.status === 'available');
+    const loadFavoriteProperties = async () => {
+      if (!user || favorites.length === 0) {
+        setFavoriteProperties([]);
+        setLoading(false);
+        return;
+      }
 
-        setFavorites(featuredProperties);
+      try {
+        setLoading(true);
+        const propertyPromises = favorites.map(async (fav) => {
+          try {
+            const response = await propertyService.getPropertyById(fav.property_id);
+            const p = response.property;
+            return {
+              id: p.id,
+              title: p.title,
+              description: p.description,
+              type: p.property_type,
+              listingType: p.listing_type,
+              price: p.price,
+              location: {
+                address: p.address,
+                city: p.city,
+                state: p.state,
+                zipCode: p.zip_code,
+                country: p.country,
+              },
+              bedrooms: p.bedrooms,
+              bathrooms: p.bathrooms,
+              area: p.area_sqft,
+              yearBuilt: p.year_built,
+              status: p.status,
+              featured: p.featured,
+              images: p.images || [],
+              agent: {
+                name: p.agent_name,
+                email: p.agent_email,
+                phone: p.agent_phone,
+              },
+              createdAt: new Date(p.created_at),
+              updatedAt: new Date(p.updated_at),
+            };
+          } catch (error) {
+            console.error(`Error loading property ${fav.property_id}:`, error);
+            return null;
+          }
+        });
+
+        const properties = await Promise.all(propertyPromises);
+        setFavoriteProperties(properties.filter(p => p !== null));
       } catch (error) {
-        console.error('Error loading favorites:', error);
-        setFavorites([]);
+        console.error('Error loading favorite properties:', error);
+        setFavoriteProperties([]);
       } finally {
         setLoading(false);
       }
     };
 
-    if (properties.length > 0) {
-      loadFavorites();
-    } else {
-      setLoading(false);
-    }
-  }, [properties]);
+    loadFavoriteProperties();
+  }, [favorites, user]);
 
-  const removeFavorite = (propertyId) => {
-    setFavorites(prev => prev.filter(p => p.id !== propertyId));
+  const handleFavoriteToggle = async (propertyId) => {
+    const result = await toggleFavorite(propertyId);
+    if (result.success) {
+      showToast('Removed from favorites', 'info');
+    } else {
+      showToast(result.error || 'Failed to remove favorite', 'error');
+    }
   };
 
-  if (loading) {
+  if (loading || favLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <LoadingSpinner size="lg" />
@@ -59,7 +106,7 @@ const FavoritesPage = () => {
         </p>
       </motion.div>
 
-      {favorites.length === 0 ? (
+      {favoriteProperties.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -75,17 +122,17 @@ const FavoritesPage = () => {
         </motion.div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {favorites.map((property, index) => (
+          {favoriteProperties.map((property, index) => (
             <motion.div
               key={property.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <PropertyCard 
-                property={property} 
-                onFavorite={removeFavorite}
-                isFavorited={true}
+              <PropertyCard
+                property={property}
+                onFavorite={handleFavoriteToggle}
+                isFavorited={isFavorited(property.id)}
               />
             </motion.div>
           ))}

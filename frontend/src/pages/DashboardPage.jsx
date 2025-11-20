@@ -4,22 +4,23 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useProperties } from '../context/PropertyContext';
 import { useSchedule } from '../context/ScheduleContext';
+import { useFavorites } from '../context/FavoriteContext';
 import { HomeIcon, HeartIcon, PlusIcon, UserIcon } from '@heroicons/react/24/outline';
 
 const DashboardPage = () => {
   const { userData, user } = useAuth();
   const { properties } = useProperties();
   const { schedules } = useSchedule();
+  const { favorites } = useFavorites();
 
-  // Calculate real stats from Firebase data
-  const userProperties = properties.filter(p => p.ownerId === user?.uid);
-  const userSchedules = schedules.filter(s => s.userId === user?.uid);
+  // Calculate real stats from user data
+  const userProperties = properties.filter(p => p.agent?.id === user?.id || p.ownerId === user?.uid);
+  const userSchedules = schedules.filter(s => s.userId === user?.uid || s.user_id === user?.id);
   const totalListings = userProperties.length;
-  const activeListings = userProperties.filter(p => p.status === 'approved').length;
-  
-  // Mock data for favorites and views (these would come from separate collections)
-  const favoritesCount = 8; // This would come from favorites collection
-  const totalSchedules = userSchedules.length; // User's schedules
+  const activeListings = userProperties.filter(p => p.status === 'available').length;
+
+  const favoritesCount = favorites.length;
+  const totalSchedules = userSchedules.length;
 
   const stats = [
     {
