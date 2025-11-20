@@ -50,27 +50,39 @@ const SearchPanel = () => {
           name="search-type"
           value={searchData.type}
           onChange={(e) => setSearchData({...searchData, type: e.target.value})}
-          className="w-full px-4 py-3 rounded-lg border border-white/30 bg-white/20 backdrop-blur-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+          className="w-full px-4 py-3 rounded-lg border border-white/30 bg-white/20 backdrop-blur-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent appearance-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+            backgroundPosition: 'right 0.5rem center',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: '1.5em 1.5em'
+          }}
         >
-          <option key="" value="">Property Type</option>
-          <option key="house" value="house">House</option>
-          <option key="apartment" value="apartment">Apartment</option>
-          <option key="condo" value="condo">Condo</option>
-          <option key="villa" value="villa">Villa</option>
+          <option key="" value="" className="text-gray-900 bg-white">Property Type</option>
+          <option key="house" value="house" className="text-gray-900 bg-white">House</option>
+          <option key="apartment" value="apartment" className="text-gray-900 bg-white">Apartment</option>
+          <option key="condo" value="condo" className="text-gray-900 bg-white">Condo</option>
+          <option key="villa" value="villa" className="text-gray-900 bg-white">Villa</option>
         </select>
-        
+
         <select
           id="search-price-range"
           name="search-price-range"
           value={searchData.priceRange}
           onChange={(e) => setSearchData({...searchData, priceRange: e.target.value})}
-          className="w-full px-4 py-3 rounded-lg border border-white/30 bg-white/20 backdrop-blur-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+          className="w-full px-4 py-3 rounded-lg border border-white/30 bg-white/20 backdrop-blur-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent appearance-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+            backgroundPosition: 'right 0.5rem center',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: '1.5em 1.5em'
+          }}
         >
-          <option key="" value="">Price Range</option>
-          <option key="0-500000" value="0-500000">Under ৳500K</option>
-          <option key="500000-1000000" value="500000-1000000">৳500K - ৳1M</option>
-          <option key="1000000-2000000" value="1000000-2000000">৳1M - ৳2M</option>
-          <option key="2000000+" value="2000000+">৳2M+</option>
+          <option key="" value="" className="text-gray-900 bg-white">Price Range</option>
+          <option key="0-500000" value="0-500000" className="text-gray-900 bg-white">Under ৳500K</option>
+          <option key="500000-1000000" value="500000-1000000" className="text-gray-900 bg-white">৳500K - ৳1M</option>
+          <option key="1000000-2000000" value="1000000-2000000" className="text-gray-900 bg-white">৳1M - ৳2M</option>
+          <option key="2000000+" value="2000000+" className="text-gray-900 bg-white">৳2M+</option>
         </select>
         
         <Button 
