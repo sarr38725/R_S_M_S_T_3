@@ -3,8 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MapPinIcon, CalendarIcon, HeartIcon } from '@heroicons/react/24/outline';
+import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import { propertyService } from '../services/propertyService';
 import { getImageUrls } from '../utils/imageHelper';
+import { useFavorites } from '../context/FavoriteContext';
+import { useUI } from '../context/UIContext';
 
 import ScheduleModal from '../components/property/ScheduleModal';
 import ContactModal from '../components/property/ContactModal';
@@ -31,12 +34,27 @@ function formatPrice(n) {
 
 export default function PropertyDetailPage() {
   const { id } = useParams();
+  const { toggleFavorite, isFavorited } = useFavorites();
+  const { showToast } = useUI();
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
+
+  const handleFavoriteToggle = async () => {
+    const result = await toggleFavorite(parseInt(id));
+    if (result.success) {
+      if (isFavorited(parseInt(id))) {
+        showToast('Removed from favorites', 'info');
+      } else {
+        showToast('Added to favorites', 'success');
+      }
+    } else {
+      showToast(result.error || 'Failed to update favorite', 'error');
+    }
+  };
 
   useEffect(() => {
     let alive = true;
@@ -201,8 +219,16 @@ export default function PropertyDetailPage() {
                     </span>
                   </div>
                 </div>
-                <button className="p-2 text-gray-400 transition-colors hover:text-red-500" aria-label="Favorite">
-                  <HeartIcon className="w-6 h-6" />
+                <button
+                  onClick={handleFavoriteToggle}
+                  className="p-2 transition-colors rounded-full hover:bg-gray-100"
+                  aria-label="Favorite"
+                >
+                  {isFavorited(parseInt(id)) ? (
+                    <HeartIconSolid className="w-6 h-6 text-red-500" />
+                  ) : (
+                    <HeartIcon className="w-6 h-6 text-gray-400 hover:text-red-500" />
+                  )}
                 </button>
               </div>
 

@@ -1,11 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useProperties } from '../../context/PropertyContext';
+import { useFavorites } from '../../context/FavoriteContext';
+import { useUI } from '../../context/UIContext';
 import PropertyCard from '../property/PropertyCard';
 import LoadingSpinner from '../common/LoadingSpinner';
 
 const FeaturedProperties = () => {
   const { featuredProperties: properties, loading } = useProperties();
+  const { toggleFavorite, isFavorited } = useFavorites();
+  const { showToast } = useUI();
+
+  const handleFavoriteToggle = async (propertyId) => {
+    const result = await toggleFavorite(propertyId);
+    if (result.success) {
+      if (isFavorited(propertyId)) {
+        showToast('Removed from favorites', 'info');
+      } else {
+        showToast('Added to favorites', 'success');
+      }
+    } else {
+      showToast(result.error || 'Failed to update favorite', 'error');
+    }
+  };
 
   if (loading) {
     return (
@@ -41,7 +58,11 @@ const FeaturedProperties = () => {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
             >
-              <PropertyCard property={property} />
+              <PropertyCard
+                property={property}
+                onFavorite={handleFavoriteToggle}
+                isFavorited={isFavorited(property.id)}
+              />
             </motion.div>
           ))}
         </div>

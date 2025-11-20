@@ -9,6 +9,7 @@ const propertyRoutes = require('./routes/propertyRoutes');
 const scheduleRoutes = require('./routes/scheduleRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const imageRoutes = require('./routes/imageRoutes');
+const favoritesRoutes = require('./routes/favoritesRoutes');
 const db = require('./config/database');
 
 // Create app
@@ -62,6 +63,7 @@ app.use('/api/properties', propertyRoutes);
 app.use('/api/schedules', scheduleRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/images', imageRoutes);
+app.use('/api/favorites', favoritesRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {

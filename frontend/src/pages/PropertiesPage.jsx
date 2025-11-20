@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import { useProperties } from '../context/PropertyContext';
+import { useFavorites } from '../context/FavoriteContext';
+import { useUI } from '../context/UIContext';
 import PropertyCard from '../components/property/PropertyCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { FiFilter, FiX } from 'react-icons/fi';
@@ -59,6 +61,8 @@ const BATHROOMS = [
 
 const PropertiesPage = () => {
   const { properties, loading, loadProperties } = useProperties();
+  const { toggleFavorite, isFavorited } = useFavorites();
+  const { showToast } = useUI();
 
   const [filters, setFilters] = useState({
     type: '',
@@ -71,6 +75,19 @@ const PropertiesPage = () => {
   });
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const handleFavoriteToggle = async (propertyId) => {
+    const result = await toggleFavorite(propertyId);
+    if (result.success) {
+      if (isFavorited(propertyId)) {
+        showToast('Removed from favorites', 'info');
+      } else {
+        showToast('Added to favorites', 'success');
+      }
+    } else {
+      showToast(result.error || 'Failed to update favorite', 'error');
+    }
+  };
 
   // derive query-friendly filters
   const parsed = useMemo(() => {
@@ -326,7 +343,11 @@ const PropertiesPage = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: Math.min(index * 0.05, 0.5) }}
                   >
-                    <PropertyCard property={property} />
+                    <PropertyCard
+                      property={property}
+                      onFavorite={handleFavoriteToggle}
+                      isFavorited={isFavorited(property.id)}
+                    />
                   </motion.div>
                 ))}
               </div>
