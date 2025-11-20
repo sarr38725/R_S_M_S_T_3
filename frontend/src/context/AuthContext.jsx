@@ -49,7 +49,10 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      console.log('AuthContext: Attempting login via authService...');
       const response = await authService.login({ email, password });
+      console.log('AuthContext: Login response:', response);
+
       const currentUser = response.user;
       setUser(currentUser);
       setUserData({
@@ -60,9 +63,24 @@ export const AuthProvider = ({ children }) => {
         avatar: currentUser.profile_image || '',
       });
       setIsAdminMode(currentUser.role === 'admin');
+      console.log('AuthContext: Login successful, user set:', currentUser);
       return { success: true, user: currentUser };
     } catch (error) {
-      return { success: false, error: error.response?.data?.message || error.message };
+      console.error('AuthContext: Login error:', error);
+      console.error('Error response:', error.response);
+      console.error('Error message:', error.message);
+
+      let errorMessage = 'Network error. Please check if the backend server is running.';
+
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message.includes('Network Error')) {
+        errorMessage = 'Cannot connect to server. Please ensure backend is running on http://localhost:5000';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      return { success: false, error: errorMessage };
     }
   };
 
