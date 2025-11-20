@@ -40,25 +40,48 @@ const PRICE_RANGES = [
   { value: '2000000+', label: '$2M+' },
 ];
 
+const BEDROOMS = [
+  { value: '', label: 'Any' },
+  { value: '1', label: '1+' },
+  { value: '2', label: '2+' },
+  { value: '3', label: '3+' },
+  { value: '4', label: '4+' },
+  { value: '5', label: '5+' },
+];
+
+const BATHROOMS = [
+  { value: '', label: 'Any' },
+  { value: '1', label: '1+' },
+  { value: '2', label: '2+' },
+  { value: '3', label: '3+' },
+  { value: '4', label: '4+' },
+];
+
 const PropertiesPage = () => {
   const { properties, loading, loadProperties } = useProperties();
 
   const [filters, setFilters] = useState({
     type: '',
     priceRange: '',
-    location: ''
+    location: '',
+    minPrice: 0,
+    maxPrice: 10000000,
+    bedrooms: '',
+    bathrooms: '',
   });
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // derive query-friendly filters
   const parsed = useMemo(() => {
-    const { minPrice, maxPrice } = parsePriceRange(filters.priceRange);
+    const { minPrice: rangeMin, maxPrice: rangeMax } = parsePriceRange(filters.priceRange);
     return {
       type: filters.type || null,
       location: filters.location?.trim() || null,
-      minPrice,
-      maxPrice,
+      minPrice: filters.priceRange ? rangeMin : filters.minPrice,
+      maxPrice: filters.priceRange ? rangeMax : filters.maxPrice,
+      bedrooms: filters.bedrooms || null,
+      bathrooms: filters.bathrooms || null,
     };
   }, [filters]);
 
@@ -75,7 +98,24 @@ const PropertiesPage = () => {
   }, [debounced, loadProperties]);
 
   const resetFilters = () => {
-    setFilters({ type: '', priceRange: '', location: '' });
+    setFilters({
+      type: '',
+      priceRange: '',
+      location: '',
+      minPrice: 0,
+      maxPrice: 10000000,
+      bedrooms: '',
+      bathrooms: '',
+    });
+  };
+
+  const formatPrice = (value) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
   };
 
   if (loading) {
@@ -127,7 +167,7 @@ const PropertiesPage = () => {
               </div>
 
               <div className="p-6 overflow-y-auto max-h-screen lg:max-h-none">
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <div>
                     <label htmlFor="filter-type" className="block mb-2 text-sm font-medium text-gray-700">
                       Property Type
@@ -147,7 +187,7 @@ const PropertiesPage = () => {
 
                   <div>
                     <label htmlFor="filter-price-range" className="block mb-2 text-sm font-medium text-gray-700">
-                      Price Range
+                      Quick Price Range
                     </label>
                     <select
                       id="filter-price-range"
@@ -158,6 +198,80 @@ const PropertiesPage = () => {
                     >
                       {PRICE_RANGES.map(opt => (
                         <option key={opt.value || 'all'} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {!filters.priceRange && (
+                    <div>
+                      <label className="block mb-3 text-sm font-medium text-gray-700">
+                        Custom Price Range
+                      </label>
+                      <div className="space-y-4">
+                        <div>
+                          <label htmlFor="min-price" className="block mb-2 text-xs text-gray-600">
+                            Minimum: {formatPrice(filters.minPrice)}
+                          </label>
+                          <input
+                            id="min-price"
+                            type="range"
+                            min="0"
+                            max="10000000"
+                            step="100000"
+                            value={filters.minPrice}
+                            onChange={(e) => setFilters({ ...filters, minPrice: Number(e.target.value) })}
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="max-price" className="block mb-2 text-xs text-gray-600">
+                            Maximum: {formatPrice(filters.maxPrice)}
+                          </label>
+                          <input
+                            id="max-price"
+                            type="range"
+                            min="0"
+                            max="10000000"
+                            step="100000"
+                            value={filters.maxPrice}
+                            onChange={(e) => setFilters({ ...filters, maxPrice: Number(e.target.value) })}
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <label htmlFor="filter-bedrooms" className="block mb-2 text-sm font-medium text-gray-700">
+                      Bedrooms
+                    </label>
+                    <select
+                      id="filter-bedrooms"
+                      name="filter-bedrooms"
+                      value={filters.bedrooms}
+                      onChange={(e) => setFilters({ ...filters, bedrooms: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      {BEDROOMS.map(opt => (
+                        <option key={opt.value || 'any'} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="filter-bathrooms" className="block mb-2 text-sm font-medium text-gray-700">
+                      Bathrooms
+                    </label>
+                    <select
+                      id="filter-bathrooms"
+                      name="filter-bathrooms"
+                      value={filters.bathrooms}
+                      onChange={(e) => setFilters({ ...filters, bathrooms: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      {BATHROOMS.map(opt => (
+                        <option key={opt.value || 'any'} value={opt.value}>{opt.label}</option>
                       ))}
                     </select>
                   </div>
@@ -179,7 +293,7 @@ const PropertiesPage = () => {
 
                   <button
                     onClick={resetFilters}
-                    className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200"
+                    className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
                   >
                     Reset filters
                   </button>
