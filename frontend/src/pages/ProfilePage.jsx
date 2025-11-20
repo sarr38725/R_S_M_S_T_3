@@ -170,33 +170,6 @@ const ProfilePage = () => {
         </form>
       </motion.div>
 
-      {/* Account Stats */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="bg-white rounded-lg shadow-sm p-6"
-      >
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Statistics</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">12</div>
-            <div className="text-sm text-gray-600">Properties Listed</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-emerald-600">8</div>
-            <div className="text-sm text-gray-600">Favorites</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">1.2K</div>
-            <div className="text-sm text-gray-600">Profile Views</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-orange-600">45</div>
-            <div className="text-sm text-gray-600">Inquiries</div>
-          </div>
-        </div>
-      </motion.div>
     </div>
   );
 };
