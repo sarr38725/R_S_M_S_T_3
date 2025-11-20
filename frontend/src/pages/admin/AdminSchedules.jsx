@@ -233,7 +233,7 @@ const AdminSchedules = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
-                      <button 
+                      <button
                         onClick={() => {
                           setSelectedSchedule(schedule);
                           setShowDetails(true);
@@ -243,30 +243,23 @@ const AdminSchedules = () => {
                       >
                         <EyeIcon className="h-4 w-4" />
                       </button>
-                      
+
                       {schedule.status === 'pending' && (
                         <>
-                          <button 
+                          <button
                             onClick={() => handleStatusUpdate(schedule.id, 'confirmed')}
                             className="text-emerald-600 hover:text-emerald-900"
                             title="Confirm"
                           >
                             <CheckCircleIcon className="h-4 w-4" />
                           </button>
-                          <button 
-                            onClick={() => handleStatusUpdate(schedule.id, 'cancelled')}
-                            className="text-red-600 hover:text-red-900"
-                            title="Cancel"
-                          >
-                            <XCircleIcon className="h-4 w-4" />
-                          </button>
                         </>
                       )}
-                      
+
                       {schedule.status === 'confirmed' && (
-                        <button 
+                        <button
                           onClick={() => handleStatusUpdate(schedule.id, 'completed')}
-                          className="text-purple-600 hover:text-purple-900"
+                          className="text-blue-600 hover:text-blue-900"
                           title="Mark Complete"
                         >
                           <CheckCircleIcon className="h-4 w-4" />
