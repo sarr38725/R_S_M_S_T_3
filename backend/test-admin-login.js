@@ -5,7 +5,7 @@ async function testAdminLogin() {
   try {
     console.log('Testing admin login...\n');
 
-    const email = 'admin@realestate.com';
+    const email = 'rohit.sarkar55555555@gmail.com';
     const password = 'admin123';
 
     const [users] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
@@ -17,11 +17,11 @@ async function testAdminLogin() {
       const hashedPassword = await bcrypt.hash(password, 10);
       await db.query(
         'INSERT INTO users (email, password, full_name, role) VALUES (?, ?, ?, ?)',
-        [email, hashedPassword, 'Admin User', 'admin']
+        [email, hashedPassword, 'Rohit Sarkar', 'admin']
       );
 
       console.log('✅ Admin user created successfully!');
-      console.log('Email: admin@realestate.com');
+      console.log('Email: rohit.sarkar55555555@gmail.com');
       console.log('Password: admin123');
       process.exit(0);
     }
