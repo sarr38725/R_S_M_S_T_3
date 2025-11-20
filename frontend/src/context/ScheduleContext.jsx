@@ -32,9 +32,14 @@ export const ScheduleProvider = ({ children }) => {
         const formattedSchedules = result.data.map(schedule => {
           let scheduledDate;
           try {
-            const dateTimeString = `${schedule.visit_date}T${schedule.visit_time}`;
-            scheduledDate = new Date(dateTimeString).toISOString();
+            if (schedule.visit_date && schedule.visit_time) {
+              const dateTimeString = `${schedule.visit_date}T${schedule.visit_time}`;
+              scheduledDate = new Date(dateTimeString).toISOString();
+            } else {
+              scheduledDate = schedule.visit_date || new Date().toISOString();
+            }
           } catch (error) {
+            console.error('Date parsing error:', error);
             scheduledDate = `${schedule.visit_date} ${schedule.visit_time}`;
           }
 
@@ -49,14 +54,14 @@ export const ScheduleProvider = ({ children }) => {
             scheduledDate: scheduledDate,
             contactMethod: schedule.contact_method || 'email',
             message: schedule.message || '',
-            status: schedule.status,
+            status: schedule.status || 'pending',
             createdAt: schedule.created_at
           };
         });
         console.log('Formatted schedules:', formattedSchedules);
         setSchedules(formattedSchedules);
       } else {
-        console.warn('No schedules loaded or unsuccessful result');
+        console.warn('No schedules loaded or unsuccessful result:', result);
         setSchedules([]);
       }
     } catch (error) {
