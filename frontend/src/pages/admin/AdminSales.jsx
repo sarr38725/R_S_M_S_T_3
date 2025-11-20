@@ -14,6 +14,7 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, L
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { getImageUrl } from '../../utils/imageHelper';
 
 const AdminSales = () => {
   const { properties, updatePropertyStatus, loading, loadProperties } = useProperties();
@@ -409,7 +410,7 @@ const AdminSales = () => {
                           <div className="flex-shrink-0 w-10 h-10">
                             {record.images && record.images.length > 0 ? (
                               <img
-                                src={record.images[0]}
+                                src={getImageUrl(record.images[0])}
                                 alt={record.title}
                                 className="object-cover w-10 h-10 rounded-lg"
                               />
@@ -511,7 +512,7 @@ const AdminSales = () => {
                 <div className="flex items-center flex-1 space-x-4">
                   {property.images && property.images.length > 0 ? (
                     <img
-                      src={property.images[0]}
+                      src={getImageUrl(property.images[0])}
                       alt={property.title}
                       className="object-cover w-20 h-20 rounded-lg"
                     />
