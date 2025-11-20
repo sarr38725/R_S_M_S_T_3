@@ -1,20 +1,28 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  CogIcon, 
-  BellIcon, 
-  ShieldCheckIcon, 
+import {
+  CogIcon,
+  ShieldCheckIcon,
   CurrencyDollarIcon,
-  GlobeAltIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  UserIcon
 } from '@heroicons/react/24/outline';
+import { useAuth } from '../../context/AuthContext';
 import { useUI } from '../../context/UIContext';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 
 const AdminSettings = () => {
+  const { user } = useAuth();
   const { showToast } = useUI();
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('profile');
+  const [profileData, setProfileData] = useState({
+    fullName: user?.name || 'Admin User',
+    email: user?.email || 'admin@example.com',
+    phone: '(555) 123-4567',
+    bio: 'Platform Administrator'
+  });
   const [settings, setSettings] = useState({
     siteName: 'RealEstate',
     siteDescription: 'Your trusted real estate platform',
@@ -29,12 +37,25 @@ const AdminSettings = () => {
     maintenanceMode: false
   });
 
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      showToast('Profile updated successfully!', 'success');
+    } catch (error) {
+      showToast('Failed to update profile. Please try again.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Simulate saving settings
       await new Promise(resolve => setTimeout(resolve, 1000));
       showToast('Settings saved successfully!', 'success');
     } catch (error) {
@@ -78,13 +99,103 @@ const AdminSettings = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h1 className="text-3xl font-bold text-gray-900">Platform Settings</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
         <p className="text-gray-600 mt-2">
-          Configure platform-wide settings and preferences
+          Manage your profile and platform settings
         </p>
       </motion.div>
 
-      <form onSubmit={handleSave} className="space-y-6">
+      {/* Tabs */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="bg-white rounded-lg shadow-sm"
+      >
+        <div className="flex border-b">
+          <button
+            onClick={() => setActiveTab('profile')}
+            className={`px-6 py-3 text-sm font-medium transition-colors ${
+              activeTab === 'profile'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <UserIcon className="inline-block w-5 h-5 mr-2" />
+            Profile
+          </button>
+          <button
+            onClick={() => setActiveTab('platform')}
+            className={`px-6 py-3 text-sm font-medium transition-colors ${
+              activeTab === 'platform'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <CogIcon className="inline-block w-5 h-5 mr-2" />
+            Platform Settings
+          </button>
+        </div>
+      </motion.div>
+
+      {/* Profile Tab */}
+      {activeTab === 'profile' && (
+        <form onSubmit={handleSaveProfile} className="space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-lg shadow-sm p-6"
+          >
+            <div className="flex items-center mb-6">
+              <UserIcon className="h-6 w-6 text-blue-600 mr-3" />
+              <h2 className="text-lg font-semibold text-gray-900">Profile Information</h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Input
+                label="Full Name"
+                type="text"
+                value={profileData.fullName}
+                onChange={(e) => setProfileData({...profileData, fullName: e.target.value})}
+              />
+              <Input
+                label="Email"
+                type="email"
+                value={profileData.email}
+                onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+              />
+              <Input
+                label="Phone"
+                type="tel"
+                value={profileData.phone}
+                onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+              />
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Bio
+                </label>
+                <textarea
+                  rows={4}
+                  value={profileData.bio}
+                  onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+          </motion.div>
+
+          <div className="flex justify-end">
+            <Button type="submit" loading={loading} size="lg">
+              Save Profile
+            </Button>
+          </div>
+        </form>
+      )}
+
+      {/* Platform Settings Tab */}
+      {activeTab === 'platform' && (
+        <form onSubmit={handleSave} className="space-y-6">
         {settingSections.map((section, index) => (
           <motion.div
             key={section.title}
@@ -212,7 +323,8 @@ const AdminSettings = () => {
             Save Settings
           </Button>
         </div>
-      </form>
+        </form>
+      )}
     </div>
   );
 };
