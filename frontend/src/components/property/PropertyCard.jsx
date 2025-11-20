@@ -71,7 +71,7 @@ const PropertyCard = ({ property, onFavorite, isFavorited = false }) => {
           {status === 'sold' && <Badge variant="danger" size="sm">SOLD</Badge>}
           {status === 'rented' && <Badge variant="warning" size="sm">RENTED</Badge>}
           {featured && status === 'available' && <Badge variant="featured" size="sm">Featured</Badge>}
-          <Badge variant="info" size="sm">{type}</Badge>}
+          <Badge variant="info" size="sm">{type}</Badge>
         </div>
 
         {/* Favorite Button */}
