@@ -7,7 +7,9 @@ import {
   CalendarIcon,
   CurrencyDollarIcon,
   HomeIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  DocumentArrowDownIcon,
+  TrashIcon
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon as CheckCircleSolidIcon } from '@heroicons/react/24/solid';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from 'recharts';
@@ -163,16 +165,93 @@ const AdminSales = () => {
       }
 
       const newStatus = listingType === 'rent' ? 'rented' : 'sold';
-      
-      // Create permanent sale record BEFORE updating property status
+
       createSaleRecord(property, newStatus);
-      
-      // Update property status in the main system
+
       await updatePropertyStatus(propertyId, newStatus);
-      
+
       showToast(`Property marked as ${newStatus} and sale record saved!`, 'success');
     } catch (error) {
       showToast(error.message || 'Failed to update property status', 'error');
+    }
+  };
+
+  const handleDeleteSoldRecord = (recordId) => {
+    if (!window.confirm('Are you sure you want to permanently delete this sale record? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const updatedRecords = soldRecords.filter(r => r.id !== recordId);
+      saveSoldRecords(updatedRecords);
+      showToast('Sale record deleted successfully', 'success');
+    } catch (error) {
+      showToast('Failed to delete sale record', 'error');
+    }
+  };
+
+  const generateReport = (format = 'csv') => {
+    try {
+      if (soldRecords.length === 0) {
+        showToast('No sales data available to generate report', 'warning');
+        return;
+      }
+
+      if (format === 'csv') {
+        const headers = ['Sale ID', 'Property Title', 'Type', 'Status', 'Location', 'Sale Date', 'Sale Price', 'Bedrooms', 'Bathrooms', 'Area (sqft)', 'Agent Name', 'Agent Email'];
+        const csvRows = [
+          headers.join(','),
+          ...soldRecords.map(record => [
+            record.id,
+            `"${record.title}"`,
+            record.listingType,
+            record.status,
+            `"${record.location?.city}, ${record.location?.state}"`,
+            new Date(record.saleDate).toLocaleDateString(),
+            record.price,
+            record.bedrooms,
+            record.bathrooms,
+            record.area,
+            `"${record.agent?.name || 'N/A'}"`,
+            record.agent?.email || 'N/A'
+          ].join(','))
+        ];
+
+        const csvContent = csvRows.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `sales-report-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        showToast('CSV report downloaded successfully', 'success');
+      } else if (format === 'json') {
+        const jsonContent = JSON.stringify({
+          generatedAt: new Date().toISOString(),
+          totalSales: soldRecords.length,
+          totalRevenue: stats.allTime.total,
+          sales: soldRecords
+        }, null, 2);
+
+        const blob = new Blob([jsonContent], { type: 'application/json' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `sales-report-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        showToast('JSON report downloaded successfully', 'success');
+      }
+    } catch (error) {
+      console.error('Report generation error:', error);
+      showToast('Failed to generate report', 'error');
     }
   };
 
@@ -230,11 +309,34 @@ const AdminSales = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between"
       >
-        <h1 className="text-3xl font-bold text-gray-900">Sales Management</h1>
-        <p className="mt-2 text-gray-600">
-          Track property sales and manage sold properties
-        </p>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Sales Management</h1>
+          <p className="mt-2 text-gray-600">
+            Track property sales and manage sold properties
+          </p>
+        </div>
+        <div className="flex space-x-3">
+          <Button
+            onClick={() => generateReport('csv')}
+            variant="secondary"
+            className="flex items-center space-x-2"
+            disabled={soldRecords.length === 0}
+          >
+            <DocumentArrowDownIcon className="w-5 h-5" />
+            <span>Export CSV</span>
+          </Button>
+          <Button
+            onClick={() => generateReport('json')}
+            variant="secondary"
+            className="flex items-center space-x-2"
+            disabled={soldRecords.length === 0}
+          >
+            <DocumentArrowDownIcon className="w-5 h-5" />
+            <span>Export JSON</span>
+          </Button>
+        </div>
       </motion.div>
 
       {/* Sales Statistics */}
@@ -398,6 +500,9 @@ const AdminSales = () => {
                   <th className="px-6 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase">
                     Sale Price
                   </th>
+                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -454,6 +559,15 @@ const AdminSales = () => {
                       </td>
                       <td className="px-6 py-4 text-sm font-semibold text-right text-gray-900 whitespace-nowrap">
                         {formatCurrency(record.price)}
+                      </td>
+                      <td className="px-6 py-4 text-right whitespace-nowrap">
+                        <button
+                          onClick={() => handleDeleteSoldRecord(record.id)}
+                          className="p-2 text-red-600 transition-colors rounded-lg hover:bg-red-50"
+                          title="Delete sale record"
+                        >
+                          <TrashIcon className="w-5 h-5" />
+                        </button>
                       </td>
                     </tr>
                   ))}
