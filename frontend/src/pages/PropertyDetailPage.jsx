@@ -42,6 +42,7 @@ export default function PropertyDetailPage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
 
   const handleFavoriteToggle = async () => {
     const result = await toggleFavorite(parseInt(id));
@@ -166,7 +167,13 @@ export default function PropertyDetailPage() {
                     key={idx}
                     className="flex-shrink-0 w-full md:w-[calc(33.333%-11px)] snap-start"
                   >
-                    <div className="relative h-96 md:h-[500px] overflow-hidden bg-gray-100 rounded-2xl group">
+                    <div
+                      className="relative h-96 md:h-[500px] overflow-hidden bg-gray-100 rounded-2xl group cursor-pointer"
+                      onClick={() => {
+                        setCurrentImageIndex(idx);
+                        setShowImageModal(true);
+                      }}
+                    >
                       <img
                         src={image}
                         alt={`${property.title || 'Property'} - Image ${idx + 1}`}
@@ -333,6 +340,64 @@ export default function PropertyDetailPage() {
         onClose={() => setShowContactModal(false)}
         property={property}
       />
+
+      {/* Image Modal */}
+      {showImageModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
+          onClick={() => setShowImageModal(false)}
+        >
+          <button
+            onClick={() => setShowImageModal(false)}
+            className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-10"
+            aria-label="Close"
+          >
+            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          <div className="relative w-full h-full flex items-center justify-center p-4">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+              }}
+              className="absolute left-4 p-3 bg-white/10 backdrop-blur-sm rounded-full hover:bg-white/20 transition-all z-10"
+              aria-label="Previous image"
+            >
+              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            <div className="max-w-7xl max-h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+              <img
+                src={images[currentImageIndex]}
+                alt={`${property.title || 'Property'} - Image ${currentImageIndex + 1}`}
+                className="max-w-full max-h-[90vh] object-contain rounded-lg"
+              />
+            </div>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+              }}
+              className="absolute right-4 p-3 bg-white/10 backdrop-blur-sm rounded-full hover:bg-white/20 transition-all z-10"
+              aria-label="Next image"
+            >
+              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-black/50 backdrop-blur-sm rounded-full text-white text-sm font-medium">
+              {currentImageIndex + 1} / {images.length}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
