@@ -45,7 +45,11 @@ const AddPropertyPage = () => {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    setImages(prev => [...prev, ...files]);
+    const newImages = [...images, ...files].slice(0, 3);
+    setImages(newImages);
+    if (files.length + images.length > 3) {
+      showToast('Maximum 3 images allowed', 'warning');
+    }
   };
 
   const removeImage = (index) => {
@@ -243,7 +247,7 @@ const AddPropertyPage = () => {
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
             <PhotoIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <div className="space-y-2">
-              <p className="text-sm text-gray-600">Upload property images</p>
+              <p className="text-sm text-gray-600">Upload property images (Max 3)</p>
               <input
                 type="file"
                 multiple
@@ -251,17 +255,20 @@ const AddPropertyPage = () => {
                 onChange={handleImageUpload}
                 className="hidden"
                 id="image-upload"
+                disabled={images.length >= 3}
               />
               <label htmlFor="image-upload">
-                <span className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer">
-                  Choose Files
+                <span className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                  images.length >= 3 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50 cursor-pointer'
+                }`}>
+                  Choose Files ({images.length}/3)
                 </span>
               </label>
             </div>
           </div>
 
           {images.length > 0 && (
-            <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
               {images.map((image, index) => (
                 <div key={index} className="relative">
                   <img
