@@ -179,40 +179,6 @@ export default function PropertyDetailPage() {
                   </div>
                 ))}
               </div>
-              {images.length > 1 && (
-                <>
-                  <button
-                    onClick={() => {
-                      const container = document.querySelector('.overflow-x-auto');
-                      if (container) {
-                        const scrollAmount = container.offsetWidth;
-                        container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-                      }
-                    }}
-                    className="absolute hidden md:flex items-center justify-center p-3 transition-all -translate-y-1/2 bg-white rounded-full shadow-lg left-4 top-1/2 hover:bg-gray-50 z-10"
-                    aria-label="Previous image"
-                  >
-                    <svg className="w-6 h-6 text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => {
-                      const container = document.querySelector('.overflow-x-auto');
-                      if (container) {
-                        const scrollAmount = container.offsetWidth;
-                        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-                      }
-                    }}
-                    className="absolute hidden md:flex items-center justify-center p-3 transition-all -translate-y-1/2 bg-white rounded-full shadow-lg right-4 top-1/2 hover:bg-gray-50 z-10"
-                    aria-label="Next image"
-                  >
-                    <svg className="w-6 h-6 text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </>
-              )}
             </div>
           ) : (
             <div className="relative h-96 md:h-[500px] rounded-2xl overflow-hidden bg-gray-100">
