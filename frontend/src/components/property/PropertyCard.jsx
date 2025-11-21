@@ -52,7 +52,7 @@ const PropertyCard = ({ property, onFavorite, isFavorited = false }) => {
           <img
             src={imageUrl}
             alt={title}
-            className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+            className="object-cover w-full h-full transition-transform duration-700 ease-out group-hover:scale-125"
           />
         ) : (
           <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-gray-100 to-gray-200">
