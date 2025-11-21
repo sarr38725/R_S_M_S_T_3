@@ -109,15 +109,28 @@ const EditPropertyPage = () => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
 
+    const totalCurrent = existingImages.length + images.length;
+    const totalAfter = totalCurrent + files.length;
+
     if (replaceMode) {
-      // mark all current existing images for removal and clear them
+      const limited = files.slice(0, 3);
       setRemovedExistingImages(prev => [...prev, ...existingImages]);
       setExistingImages([]);
-      // replace new uploads (not append)
-      setImages(files);
+      setImages(limited);
+      if (files.length > 3) {
+        showToast('Maximum 3 images allowed', 'warning');
+      }
     } else {
-      // append new uploads
-      setImages(prev => [...prev, ...files]);
+      const available = 3 - totalCurrent;
+      if (available <= 0) {
+        showToast('Maximum 3 images allowed', 'warning');
+        return;
+      }
+      const limited = files.slice(0, available);
+      setImages(prev => [...prev, ...limited]);
+      if (files.length > available) {
+        showToast(`Maximum 3 images allowed. Added ${limited.length} of ${files.length}`, 'warning');
+      }
     }
   };
 
@@ -356,8 +369,8 @@ const EditPropertyPage = () => {
           {/* Existing Images */}
           {existingImages.length > 0 && (
             <div className="mb-6">
-              <h3 className="mb-3 text-sm font-medium text-gray-700">Current Images</h3>
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              <h3 className="mb-3 text-sm font-medium text-gray-700">Current Images ({existingImages.length}/3)</h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 {existingImages.map((image, index) => (
                   <div key={`${image}-${index}`} className="relative">
                     <img
@@ -383,7 +396,7 @@ const EditPropertyPage = () => {
           <div className="p-6 text-center border-2 border-gray-300 border-dashed rounded-lg">
             <PhotoIcon className="w-12 h-12 mx-auto mb-4 text-gray-400" />
             <div className="space-y-2">
-              <p className="text-sm text-gray-600">Upload additional images</p>
+              <p className="text-sm text-gray-600">Upload additional images (Max 3 total)</p>
               <input
                 type="file"
                 multiple
@@ -391,10 +404,13 @@ const EditPropertyPage = () => {
                 onChange={handleImageUpload}
                 className="hidden"
                 id="image-upload"
+                disabled={!replaceMode && (existingImages.length + images.length >= 3)}
               />
               <label htmlFor="image-upload">
-                <span className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                  Choose Files
+                <span className={`inline-flex items-center px-4 py-2 text-sm font-medium bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                  !replaceMode && (existingImages.length + images.length >= 3) ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 cursor-pointer hover:bg-gray-50'
+                }`}>
+                  Choose Files ({existingImages.length + images.length}/3)
                 </span>
               </label>
             </div>
@@ -403,8 +419,8 @@ const EditPropertyPage = () => {
           {/* New images preview */}
           {images.length > 0 && (
             <div className="mt-4">
-              <h3 className="mb-3 text-sm font-medium text-gray-700">New Images</h3>
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              <h3 className="mb-3 text-sm font-medium text-gray-700">New Images ({images.length})</h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 {images.map((image, index) => (
                   <div key={index} className="relative">
                     <img
