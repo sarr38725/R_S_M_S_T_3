@@ -158,25 +158,45 @@ export default function PropertyDetailPage() {
       <div className="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
         {/* Image Gallery */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <div className="relative h-96 md:h-[500px] rounded-2xl overflow-hidden bg-gray-100">
+          <div className="relative h-96 md:h-[500px] rounded-2xl overflow-hidden bg-gray-100 group">
             {images.length > 0 ? (
               <>
                 <img
                   src={images[currentImageIndex]}
                   alt={property.title || 'Property'}
-                  className="object-cover w-full h-full"
+                  className="object-cover w-full h-full transition-transform duration-700 ease-out cursor-pointer group-hover:scale-110"
                 />
                 {images.length > 1 && (
-                  <div className="absolute flex space-x-2 -translate-x-1/2 bottom-4 left-1/2">
-                    {images.map((_, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setCurrentImageIndex(idx)}
-                        className={`w-3 h-3 rounded-full transition-all ${idx === currentImageIndex ? 'bg-white' : 'bg-white/50'}`}
-                        aria-label={`Image ${idx + 1}`}
-                      />
-                    ))}
-                  </div>
+                  <>
+                    <button
+                      onClick={() => setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
+                      className="absolute p-3 transition-all -translate-y-1/2 bg-white rounded-full shadow-lg opacity-0 left-4 top-1/2 group-hover:opacity-100 hover:bg-gray-50"
+                      aria-label="Previous image"
+                    >
+                      <svg className="w-6 h-6 text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
+                      className="absolute p-3 transition-all -translate-y-1/2 bg-white rounded-full shadow-lg opacity-0 right-4 top-1/2 group-hover:opacity-100 hover:bg-gray-50"
+                      aria-label="Next image"
+                    >
+                      <svg className="w-6 h-6 text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                    <div className="absolute flex space-x-2 -translate-x-1/2 bottom-4 left-1/2">
+                      {images.map((_, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setCurrentImageIndex(idx)}
+                          className={`w-3 h-3 rounded-full transition-all ${idx === currentImageIndex ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/80'}`}
+                          aria-label={`Image ${idx + 1}`}
+                        />
+                      ))}
+                    </div>
+                  </>
                 )}
               </>
             ) : (
