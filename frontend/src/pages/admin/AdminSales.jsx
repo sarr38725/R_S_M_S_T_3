@@ -141,16 +141,19 @@ const AdminSales = () => {
         return saleDate.getMonth() === monthYear && saleDate.getFullYear() === year;
       });
 
-      const soldCount = monthlySales.filter(r => r.status === 'sold').length;
-      const rentedCount = monthlySales.filter(r => r.status === 'rented').length;
+      const allAvailable = properties.filter(p => {
+        const createdDate = new Date(p.createdAt);
+        return createdDate.getMonth() === monthYear && createdDate.getFullYear() === year;
+      }).length;
+
+      const soldCount = monthlySales.length;
       const revenue = monthlySales.reduce((sum, r) => sum + (Number(r.price) || 0), 0);
 
       months.push({
         month: monthName,
         sold: soldCount,
-        rented: rentedCount,
-        revenue: revenue / 1000,
-        total: soldCount + rentedCount
+        notSold: allAvailable - soldCount,
+        revenue: revenue / 1000
       });
     }
 
@@ -453,7 +456,7 @@ const AdminSales = () => {
               <Tooltip content={<CustomTooltip />} />
               <Legend />
               <Bar dataKey="sold" fill="#10b981" radius={[8, 8, 0, 0]} name="Sold" />
-              <Bar dataKey="rented" fill="#3b82f6" radius={[8, 8, 0, 0]} name="Rented" />
+              <Bar dataKey="notSold" fill="#ef4444" radius={[8, 8, 0, 0]} name="Not Sold" />
             </BarChart>
           </ResponsiveContainer>
         </motion.div>
